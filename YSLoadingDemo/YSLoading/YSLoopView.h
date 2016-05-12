@@ -10,12 +10,8 @@
 
 @interface YSLoopView : UIView
 
-@property (nonatomic, strong) CAMediaTimingFunction *timingFunction;
 @property (nonatomic, readonly) BOOL isAnimating;
-@property (nonatomic) BOOL hideWhenStop;
-@property (nonatomic, strong) UIBezierPath *mTrianglePath;
 
-- (void)setProgressValue:(float)value;
 - (void)startLoopAnimating;
 - (void)stopLoopAnimating;
 

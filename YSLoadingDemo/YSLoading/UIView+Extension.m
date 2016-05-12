@@ -14,16 +14,16 @@ static char LoadingViewKey;
                              OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     [self didChangeValueForKey:@"LoadingViewKey"];
 }
+
 - (YSLoadingView*)loadingView{
     return objc_getAssociatedObject(self, &LoadingViewKey);
 }
+
 - (void)beginLoading{
-    
     if (!self.loadingView) {
         self.loadingView = [[YSLoadingView alloc] initWithFrame:self.bounds];
         [self.loadingView.titleLabel setText:@"加载中..."];
     }
-    
     [self addSubview:self.loadingView];
     [self.loadingView startAnimating];
 }
@@ -50,7 +50,6 @@ static char LoadingViewKey;
         _loopView.bounds = CGRectMake(0, 0, 43, 43);
         _loopView.center = CGPointMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds)-30);
         _loopView.translatesAutoresizingMaskIntoConstraints = NO;
-        _loopView.hideWhenStop = YES;
         [self addSubview:_loopView];
         
         _titleLabel = [[UILabel alloc]initWithFrame:CGRectZero];

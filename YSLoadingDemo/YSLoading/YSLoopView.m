@@ -14,9 +14,11 @@ static NSString *kMMRingStrokeAnimationKey = @"mmmaterialdesignspinner.stroke";
 static NSString *kMMRingRotationAnimationKey = @"mmmaterialdesignspinner.rotation";
 
 @interface YSLoopView ()
+
+@property (nonatomic, strong) CAMediaTimingFunction *timingFunction;
 @property (nonatomic, readonly) CAShapeLayer *progressLayer;
 @property (nonatomic, readonly) CAShapeLayer *progressLayerBackGround;
-@property (nonatomic, readwrite) BOOL isAnimating;
+@property (nonatomic, readwrite) BOOL isPrivateAnimating;
 @end
 
 @implementation YSLoopView
@@ -37,13 +39,8 @@ static NSString *kMMRingRotationAnimationKey = @"mmmaterialdesignspinner.rotatio
     [self.layer addSublayer:self.progressLayerBackGround];
     [self.layer addSublayer:self.progressLayer];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(resetAnimations) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
-}
 
 - (void)layoutSubviews {
     [super layoutSubviews];
@@ -61,26 +58,12 @@ static NSString *kMMRingRotationAnimationKey = @"mmmaterialdesignspinner.rotatio
     self.progressLayer.strokeEnd = 0.0f;
     self.progressLayer.lineCap = kCALineCapRound;
     self.progressLayerBackGround.path = self.progressLayer.path;
-    
-    
-    
+
     
 }
 - (void)drawRect:(CGRect)rect {
     [super drawRect:rect];
     
-    if (!self.hideWhenStop) {
-        self.mTrianglePath = [UIBezierPath bezierPath];
-        [self.mTrianglePath moveToPoint:CGPointMake(self.frame.size.height/2-6, self.frame.size.height/2-8)];
-        [self.mTrianglePath addLineToPoint:CGPointMake(self.frame.size.height/2-6, self.frame.size.height/2+8)];
-        [self.mTrianglePath addLineToPoint:CGPointMake(self.frame.size.width -20, self.frame.size.height/2)];
-        [self.mTrianglePath closePath];
-        
-        UIColor *fillColor = RGBCOLORVA(0x2ac7fb, 1);
-        [fillColor set];
-        [self.mTrianglePath fill];
-        [self.mTrianglePath stroke];
-    }
     [self setBackgroundColor:[UIColor clearColor]];
     
 }
@@ -89,17 +72,6 @@ static NSString *kMMRingRotationAnimationKey = @"mmmaterialdesignspinner.rotatio
     self.progressLayer.strokeColor = self.tintColor.CGColor;
 }
 
-- (void)resetAnimations {
-    // If the app goes to the background, returning it to the foreground causes the animation to stop (even though it's not explicitly stopped by our code). Resetting the animation seems to kick it back into gear.
-    if (self.isAnimating) {
-        [self stopLoopAnimating];
-        [self startLoopAnimating];
-    }
-}
-
-- (void)setProgressValue:(float)value{
-    _progressLayer.strokeEnd = value;
-}
 
 - (void)startLoopAnimating {
     if (self.isAnimating)
@@ -150,7 +122,7 @@ static NSString *kMMRingRotationAnimationKey = @"mmmaterialdesignspinner.rotatio
     animations.repeatCount = INFINITY;
     [self.progressLayer addAnimation:animations forKey:kMMRingStrokeAnimationKey];
     
-    self.isAnimating = true;
+    self.isPrivateAnimating = true;
     self.hidden = NO;
 }
 
@@ -159,8 +131,7 @@ static NSString *kMMRingRotationAnimationKey = @"mmmaterialdesignspinner.rotatio
         return;
     [self.progressLayer removeAnimationForKey:kMMRingRotationAnimationKey];
     [self.progressLayer removeAnimationForKey:kMMRingStrokeAnimationKey];
-    self.isAnimating = false;
-    self.hidden = self.hideWhenStop;
+    self.isPrivateAnimating = false;
 }
 #pragma mark - Properties
 - (CAShapeLayer *)progressLayer {
@@ -183,7 +154,7 @@ static NSString *kMMRingRotationAnimationKey = @"mmmaterialdesignspinner.rotatio
 }
 
 - (BOOL)isAnimating {
-    return _isAnimating;
+    return self.isPrivateAnimating;
 }
 
 
